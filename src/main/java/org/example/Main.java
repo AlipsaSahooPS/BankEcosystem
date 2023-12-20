@@ -72,26 +72,26 @@ public class Main {
                     bank = HDFC.getBank(obj.isr, obj.buff);
                     bank.performOperation(cust);
                     break;
-//                case "2":
-//                    System.out.println("Welcome to ICICI.");
-//                    bank = ICICI.getBank(obj.isr, obj.buff);
-//                    bank.performOperation(cust);
-//                    break;
-//                case "3":
-//                    System.out.println("Welcome to SBI.");
-//                    bank = SBI.getBank(obj.isr, obj.buff);
-//                    bank.performOperation(cust);
-//                    break;
-//                case "4":
-//                    System.out.println("Welcome to AXIS.");
-//                    bank = AXIS.getBank(obj.isr, obj.buff);
-//                    bank.performOperation(cust);
-//                    break;
-//                case "5":
-//                    System.out.println("Welcome to IDFC.");
-//                    bank = IDFC.getBank(obj.isr, obj.buff);
-//                    bank.performOperation(cust);
-//                    break;
+                case "2":
+                    System.out.println("Welcome to ICICI.");
+                    bank = ICICI.getBank(obj.isr, obj.buff);
+                    bank.performOperation(cust);
+                    break;
+                case "3":
+                    System.out.println("Welcome to SBI.");
+                    bank = SBI.getBank(obj.isr, obj.buff);
+                    bank.performOperation(cust);
+                    break;
+                case "4":
+                    System.out.println("Welcome to AXIS.");
+                    bank = AXIS.getBank(obj.isr, obj.buff);
+                    bank.performOperation(cust);
+                    break;
+                case "5":
+                    System.out.println("Welcome to IDFC.");
+                    bank = IDFC.getBank(obj.isr, obj.buff);
+                    bank.performOperation(cust);
+                    break;
                 case "N":
                     bankExit = true;
                     LOGGER.log(Level.INFO,"Thank you for using IBS.");

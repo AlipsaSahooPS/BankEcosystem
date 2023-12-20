@@ -1,165 +1,225 @@
-//package org.example;
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.util.ArrayList;
-//
-//public class AXIS  {
-//
-//    InputStreamReader isr;
-//    BufferedReader buff;
-//    float balance = 0.0f;
-//    float amount;
-//    float remainingBalance;
-//    float ROI = 6.5f;
-//    int years;
-//    int withdrawCount =0;
-//    float minBalance = 2000;
-//    ArrayList<Customer> customersList;
-//
-//    public AXIS(Main isr , String buff) {
-//
-//        this.isr = isr;
-//        this.buff = buff;
-//        this.customersList = new ArrayList<>();
-//    }
-//
-//    public void performOperation() throws IOException {
-//
-//
-//
-//        boolean flag = true;
-//
-//        while(flag) {
-//            System.out.println("Enter the operation you want to perform \n1.Deposit \n2.Withdraw \n3.openFD \n4.checkBalance \n5.createAccount \n6.Get all customer details \n7.Exit");
-//            int choice = 0;
-//            choice = Integer.parseInt(buff.readLine());
-//            switch (choice) {
-//                case 1:
-//                    System.out.println("Enter the amount you want to deposit");
-//                    amount = Float.parseFloat(buff.readLine());
-//                    remainingBalance = deposit(amount);
-//                    System.out.println("Amount has been deposited in your account" + remainingBalance);
-//                    break;
-//
-//                case 2:
-//                    System.out.println("Enter the amount you want to withdraw");
-//                    amount = Float.parseFloat(buff.readLine());
-//                    remainingBalance = withdraw(amount);
-//                    System.out.println("Amount has been withdrawn from your account" + remainingBalance);
-//                    break;
-//
-//                case 3:
-//                    System.out.println("Enter the amount you want to open for FD");
-//                    amount = Float.parseFloat(buff.readLine());
-//                    System.out.println("Enter  for how many years you want fixed deposit ");
-//                    years = Integer.parseInt(buff.readLine());
-//                    remainingBalance = openFD(amount, years);
-//                    System.out.println("The interest accumulated over years is " + remainingBalance);
-//                    break;
-//
-//                case 4:
-//                    remainingBalance = checkBalance();
-//                    System.out.println("Your balance is" + remainingBalance);
-//
-//
-//                case 5:
-//                    System.out.println("Enter your details to open an account ");
-//                    System.out.println("Enter your name");
-//                    String name = buff.readLine();
-//                    System.out.println("enter your email");
-//                    String email = buff.readLine();
-//                    System.out.println("Enter your phone");
-//                    String number = buff.readLine();
-//                    System.out.println("Enter your address");
-//                    String address = buff.readLine();
-//                    System.out.println("Enter your Aadhar");
-//                    String aadhar = buff.readLine();
-//                    System.out.println("Enter your Gender");
-//                    String gender = buff.readLine();
-//                    Customer customer = new Customer(name, email, number, address, aadhar, gender);
-//
-//                    customersList.add(customer);
-//
-//
-//                    break;
-//
-//                case 6:
-//                    for(Customer cust: customersList)
-//                        getCustomerDetails(cust);
-//                    break;
-//                case 7:
-//                    System.out.println("Exiting...");
-//                    flag = false;
-//
-//                    break;
-//
-//                default:
-//                    System.out.println("Invalid Choice");
-//            }
-//
-//        }
-//
-//
-//    }
-//
-//    private void getCustomerDetails(Customer customer) {
-//        System.out.println("Customer name "+ customer.getCustName());
-//        System.out.println("Customer email "+ customer.getCustEmail());
-//        System.out.println("Customer phone  "+ customer.getCustNumber());
-//        System.out.println("Customer aadhar "+ customer.getCustAadhar());
-//        System.out.println("Customer address"+ customer.getCustAddress());
-//        System.out.println("Customer gender"+ customer.getCustGender());
-//        System.out.println();
-//
-//    }
-//
-//
-//    private float checkBalance() {
-//        return  balance;
-//    }
-//
-//    public float openFD(float amount, int years) {
-//        float interest = (float) (amount * Math.pow((1 + (ROI / 100.0)), years));
-//        float requiredAmount = interest-amount;
-//        return requiredAmount;
-//    }
-//
-//    public float withdraw(float amount) {
-//        float withdrawAmount = amount;
-//        float transactionCharge = withdrawCount > 2 ? 0.01f: 0f;
-//        withdrawAmount += amount * transactionCharge;
-//
-//        if (balance - withdrawAmount > 1000) {
-//            balance -= withdrawAmount;
-//            withdrawCount++;
-//            System.out.println("Amount of " + amount + " withdrawn." + (withdrawAmount - amount) + " is charged extra. Current balance is " + balance);
-//        } else {
-//            System.out.println("Cannot withdraw. Not enough balance.");
-//        }
-//        return balance;
-//    }
-//
-//    public float deposit(float amount) {
-//        if(balance==0.0){
-//            if(amount>minBalance)
-//            {
-//                balance += amount;
-//            }else
-//            {
-//                System.out.println("Amount is less than min balance of " + minBalance);
-//            }
-//
-//        } else
-//        {
-//            balance+=amount;
-//        }
-//
-//        return balance;
-//
-//    }
-//
-//
-//
-//}
+package org.example;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import  java.util.logging.Level;
+import java.util.logging.Logger;
+import  java.util.logging.*;
+
+import static org.example.Main.LOGGER;
+
+public class AXIS implements RBI {
+    InputStreamReader isr;
+    BufferedReader buff;
+    private float ROI;
+    private float minBalance;
+    private float withdrawTransactionCharge;
+    Customer curCust;
+    Account curAcc;
+    String curAadhar;
+    float[] loanBankPercent;
+    private float creditCardBankPercent;
+    static AXIS AXISObj = null;
+    static Map<String, Account> customerAccountRecord = null;
+
+    public AXIS(InputStreamReader isr, BufferedReader buff) {
+        this.isr = isr;
+        this.buff = buff;
+        if(customerAccountRecord == null)
+            customerAccountRecord = new HashMap<>();
+        ROI = 8;
+        minBalance = 1000;
+        loanBankPercent = new float[]{5.0f, 3.0f, 6.0f, 8.0f};
+        withdrawTransactionCharge = 0.02f;
+        creditCardBankPercent = 2;
+    }
+
+    public static AXIS getBank(InputStreamReader isr, BufferedReader buff) {
+        if (AXISObj == null) {
+            AXISObj = new AXIS(isr, buff);
+        }
+        return AXISObj;
+    }
+
+    public void createNewAccount() {
+        setCurrentAccount(new Account());
+        customerAccountRecord.put(curAadhar, curAcc);
+    }
+
+    public void setCurrentCustomer(Customer cust) {
+        curCust = cust;
+    }
+
+    public void setCurrentAadhar(String aadhar) {
+        curAadhar = aadhar;
+    }
+
+    public void setCurrentAccount(Account acc) {
+        curAcc = acc;
+    }
+
+    public boolean isAccountPresent() {
+        return customerAccountRecord.containsKey(curAadhar);
+    }
+
+    public void getCustomerDetails() {
+        LOGGER.log(Level.INFO,"Customer name "+ curCust.getCustName());
+        LOGGER.log(Level.INFO,"Customer email "+ curCust.getCustEmail());
+        LOGGER.log(Level.INFO,"Customer phone  "+ curCust.getCustNumber());
+        LOGGER.log(Level.INFO,"Customer aadhar "+ curCust.getCustAadhar());
+        LOGGER.log(Level.INFO,"Customer address"+ curCust.getCustAddress());
+        LOGGER.log(Level.INFO,"Customer gender"+ curCust.getCustGender());
+    }
+
+    public void checkBalance() {
+        LOGGER.log(Level.INFO,"Your savings account balance is " + curAcc.getBalance() + ".");
+    }
+
+    public void openFD() throws IOException {
+        LOGGER.log(Level.INFO,"Enter the amount you want to open for FD:");
+        float amount = Float.parseFloat(buff.readLine());
+        LOGGER.log(Level.INFO,"Enter for how many years you want have the FD:");
+        float years = Integer.parseInt(buff.readLine());
+        float interest = (float)(amount * Math.pow((1 + (ROI / 100.0)), years));
+        float requiredAmount = interest - amount;
+        LOGGER.log(Level.INFO,"The interest accumulated over years is " + interest + ".");
+    }
+
+    public void withdraw() throws IOException {
+        LOGGER.log(Level.INFO,"Enter the amount you want to withdraw");
+        float amount = Float.parseFloat(buff.readLine());
+        float withdrawAmount = amount;
+        float transactionCharge = curAcc.withdrawCount > 2 ? withdrawTransactionCharge : 0f;
+        withdrawAmount += amount * transactionCharge;
+        if (curAcc.balance - withdrawAmount > minBalance) {
+            curAcc.setBalance(curAcc.balance - withdrawAmount);
+            curAcc.setwithdrawCount(curAcc.withdrawCount+1);
+            LOGGER.log(Level.INFO,"Amount of " + amount + " withdrawn." + (withdrawAmount - amount) + " is charged extra. Current balance is " + curAcc.balance);
+        } else {
+            LOGGER.log(Level.INFO,"Cannot withdraw. Not enough balance.");
+        }
+    }
+
+    public void deposit() throws IOException {
+        LOGGER.log(Level.INFO,"Enter the amount you want to deposit:");
+        float amount = Float.parseFloat(buff.readLine());
+        if(curAcc.balance==0.0) {
+            if(amount>minBalance) {
+                curAcc.setBalance(curAcc.balance+amount);
+                LOGGER.log(Level.INFO,"Amount has been deposited in your account");
+            }
+            else {
+                LOGGER.log(Level.INFO,"Amount is less than min balance of " + minBalance + ".");
+            }
+        }
+        else {
+            curAcc.setBalance(curAcc.balance+amount);
+            LOGGER.log(Level.INFO,"Amount has been deposited in your account");
+        }
+    }
+
+    public void applyLoan() throws IOException {
+        float rate;
+        float amount, years;
+        LOGGER.log(Level.INFO,"Enter the amount you want loan for:");
+        amount = Float.parseFloat(buff.readLine());
+        LOGGER.log(Level.INFO,"Enter for how many years you want:");
+        years = Integer.parseInt(buff.readLine());
+        LOGGER.log(Level.INFO,"Select the loan type:\n1.Home.\n2.Education.\n3.Personal.\n4.Car.");
+        int loanType = Integer.parseInt(buff.readLine());
+        switch(loanType) {
+            case 1:
+                rate = loanBankPercent[0];
+                break;
+            case 2:
+                rate = loanBankPercent[1];
+                break;
+            case 3:
+                rate = loanBankPercent[2];
+                break;
+            case 4:
+                rate = loanBankPercent[3];
+                break;
+            default:
+                rate = ROI;
+                break;
+        }
+        float prinDeduction = amount / years;
+        LOGGER.log(Level.INFO,"Interest per year will be as following");
+        for (int i = 0; i < years; i++) {
+            System.out.println(amount * rate * 0.01);
+            amount -= prinDeduction;
+        }
+    }
+
+    public void performOperation(Customer cust) throws IOException {
+        setCurrentCustomer(cust);
+        setCurrentAadhar(curCust.getCustAadhar());
+        boolean isAccPresent = isAccountPresent(), banking = true;
+        int bankingChoice = 0;
+        if(isAccPresent) {
+            setCurrentAccount(customerAccountRecord.get(curAadhar));
+        }
+        else {
+            boolean accountingPreference = false;
+            String preferenceChoice = "";
+            while(!accountingPreference)
+            {
+                LOGGER.log(Level.INFO,"Please select your accounting preference:\n1.Press 1 to create an account with AXIS.\n2.Press N to exit IBS.");
+                preferenceChoice= buff.readLine();
+                switch(preferenceChoice)
+                {
+                    case "1":
+                        createNewAccount();
+                        accountingPreference = true;
+                        banking = true;
+                        break;
+                    case "N":
+                        accountingPreference = true;
+                        banking = false;
+                        LOGGER.log(Level.INFO,"Thank you for using IBS.");
+                        break;
+                    default:
+                        accountingPreference = false;
+                        banking = true;
+                        LOGGER.log(Level.INFO,"Please select valid option.");
+                        break;
+                }
+            }
+        }
+        while(banking) {
+            LOGGER.log(Level.INFO,"Enter the operation you want to perform:\n1.Deposit.\n2.Withdraw.\n3.Open a new FD.\n4.Check your savings account balance.\n5.Get all customer details.\n6.Get Loan Details.\n7.Exit");
+            bankingChoice = Integer.parseInt(buff.readLine());
+            switch (bankingChoice) {
+                case 1:
+                    deposit();
+                    break;
+                case 2:
+                    withdraw();
+                    break;
+                case 3:
+                    openFD();
+                    break;
+                case 4:
+                    checkBalance();
+                    break;
+                case 5:
+                    getCustomerDetails();
+                    break;
+                case 6:
+                    applyLoan();
+                    break;
+                case 7:
+                    LOGGER.log(Level.INFO,"Thank you for using IBS.");
+                    banking = false;
+                    break;
+                default:
+                    LOGGER.log(Level.INFO,"Please select valid option.");
+            }
+        }
+    }
+}
